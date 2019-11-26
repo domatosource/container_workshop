@@ -1,0 +1,32 @@
+version: '3'
+
+networks:
+  appnet:
+
+volumes:
+  appvol:
+
+services:
+  nwdb:
+    image: greenandwhite/northwinddb:v1
+    build:
+      context: ./database
+    environment:
+      - MYSQL_ROOT_PASSWORD=changeit
+    networks:
+      - appnet
+    volumes:
+      - appvol:/var/lib/mysql
+  nwapp:
+    image: greenandwhite/northwindserver:v1
+    build:
+      context: ./server
+    environment:
+      - APP_PORT=3000
+      - DB_HOST=nwdb
+    ports:
+      - 80:3000
+    # volumes:
+    #   - data:/app/public
+    networks:
+      - appnet

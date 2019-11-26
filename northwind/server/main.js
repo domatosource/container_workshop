@@ -154,6 +154,12 @@ app.get(['/api/customer/:id', '/customer/:id'], (req, resp) => {
 		})
 })
 
+
+app.get('/test', (req, resp) => {
+	const testconfig = require('./config/testconfig');
+	resp.status(200).send(testconfig.testtest);
+});
+
 app.get('/config', (req, resp) => {
 	resp.status(200).json({
 		port: PORT,
