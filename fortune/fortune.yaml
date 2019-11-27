@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: Namespace
+
+metadata:
+  name: myns
+  labels:
+    version: v1
+
+---
+apiVersion: apps/v1
+kind: Deployment
+
+metadata: 
+  name: fortune-deploy
+  namespace: myns
+  labels:
+    name: fortune
+    version: v1
+
+spec: 
+  replicas: 3
+  selector: 
+    matchLabels:
+      name: fortune
+      version: v1
+  template: 
+    metadata: 
+      name: fortune-pod
+      labels: 
+        name: fortune
+        version: v1
+
+    spec: 
+      containers: 
+      - name: fortune-container
+        image: greenandwhite/fortune
+        imagePullPolicy: IfNotPresent
+        env: 
+        - name: APP_PORT
+          value: "3000"
+        ports: 
+        - name: fortune-port
+          containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+
+metadata: 
+  name: fortune-svc
+  namespace: myns
+  labels: 
+    name: fortune-svc
+    version: v1
+
+spec:
+  type: LoadBalancer
+  selector:
+    name: fortune
+    version: v1
+  ports: 
+  - name: http
+    port: 80
+    targetPort: fortune-port
