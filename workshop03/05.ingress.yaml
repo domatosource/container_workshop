@@ -1,0 +1,32 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nwserver-ingress
+  namespace: nwns
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /v1
+        backend:
+          serviceName: nwserverv1-svc
+          servicePort: 80
+  - http:
+      paths:
+      - path: /v2
+        backend:
+          serviceName: nwserverv2-svc
+          servicePort: 80
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: nwserverv2-svc
+          servicePort: 80
+  # backend: 
+  #   serviceName: nwserverv2-svc
+  #   servicePort: 80

@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: Namespace
+
+metadata:
+  name: nwns
+  labels:
+    version: v1
+
+---
+apiVersion: v1
+kind: Secret
+
+metadata: 
+  name: nwapp-secret
+  namespace: nwns
+
+data:
+  db_password: Y2hhbmdlaXRub21vcmU=

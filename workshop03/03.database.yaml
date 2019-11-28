@@ -1,0 +1,75 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+
+metadata: 
+  name: nwdb-deploy
+  namespace: nwns
+  labels:
+    name: nwdb
+    version: v1
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels:
+      name: nwdb
+      version: v1
+  template: 
+    metadata: 
+      name: nwdb-pod
+      labels: 
+        name: nwdb
+        version: v1
+    spec: 
+      volumes: 
+      - name: mysqldb-volume
+        persistentVolumeClaim: 
+          claimName: mysqldb-pvc
+      initContainers: 
+      - name: scrub
+        image: busybox
+        command: ["/bin/sh", "-c", "test -e /scrub && rm -rf /scrub/..?* /scrub/.[!.]* /scrub/*  && test -z \"$(ls -A /scrub)\" || exit 1"]
+        volumeMounts: 
+        - mountPath: /scrub
+          name: mysqldb-volume
+      containers: 
+      - name: nwdb-container
+        image: stackupiss/northwind-db:v1
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests: 
+            cpu: "20m"
+            memory: "55M"
+        env: 
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom: 
+            secretKeyRef: 
+              name: nwapp-secret
+              key: db_password
+        ports: 
+        - name: nwdb-port
+          containerPort: 3306
+        volumeMounts: 
+          - mountPath: /var/lib/mysql
+            name: mysqldb-volume
+
+---
+apiVersion: v1
+kind: Service
+
+metadata: 
+  name: nwdb-svc
+  namespace: nwns
+  labels: 
+    name: nwdb-svc
+    version: v1
+
+spec:
+  type: ClusterIP
+  selector:
+    name: nwdb
+    version: v1
+  ports: 
+  - name: http
+    port: 3306
+    targetPort: nwdb-port
