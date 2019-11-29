@@ -1,0 +1,23 @@
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+
+metadata:
+  name: fortune-ingress-vs
+
+spec: 
+  hosts:
+    - "*"
+  gateways:
+    - fortune-gateway
+  http:
+    - match:
+      - uri:
+          exact: /v1
+      route: 
+        - destination: 
+            host: fortune-svc
+            port: 
+              number: 80
+      rewrite: 
+        uri: /

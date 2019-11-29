@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+
+metadata: 
+  name: weather-deploy
+  labels:
+    name: weather
+
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels:
+      name: weather
+  template: 
+    metadata: 
+      name: weather-pod
+      labels: 
+        name: weather
+
+    spec: 
+      containers: 
+      - name: weather-container
+        image: stackupiss/weather:v1
+        imagePullPolicy: IfNotPresent
+        env: 
+        - name: APP_ID
+          value: 01735e2e49d81174d88e7576aedc6243
+        ports: 
+        - name: weather-port
+          containerPort: 3000
+
+
+---
+apiVersion: v1
+kind: Service
+
+metadata: 
+  name: weather-svc
+  labels: 
+    name: weather-svc
+
+spec:
+  type: ClusterIP
+  selector:
+    name: weather
+  ports: 
+  - name: http
+    port: 80
+    targetPort: weather-port

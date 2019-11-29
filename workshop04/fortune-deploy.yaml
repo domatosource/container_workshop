@@ -1,0 +1,47 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+
+metadata: 
+  name: fortune-deploy
+  labels:
+    name: fortune
+
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels:
+      name: fortune
+  template: 
+    metadata: 
+      name: fortune-pod
+      labels: 
+        name: fortune
+
+    spec: 
+      containers: 
+      - name: fortune-container
+        image: stackupiss/fortune:v1
+        imagePullPolicy: IfNotPresent
+        ports: 
+        - name: fortune-port
+          containerPort: 3000
+
+
+---
+apiVersion: v1
+kind: Service
+
+metadata: 
+  name: fortune-svc
+  labels: 
+    name: fortune-svc
+
+spec:
+  type: ClusterIP
+  selector:
+    name: fortune
+  ports: 
+  - name: http
+    port: 80
+    targetPort: fortune-port
